@@ -1,0 +1,449 @@
+1.	Write a Program to Implement Breadth First Search using Python
+Procedure
+Algorithm Steps
+1.	Create a queue and enqueue the starting node
+2.	Mark the starting node as visited
+3.	While the queue is not empty:
+a. Dequeue a node from the front
+b. Process the node (print it, check for goal, etc.)
+c. Enqueue all adjacent unvisited nodes
+d. Mark them as visited
+4.	Repeat until queue is empty
+Program
+from collections import deque
+
+def bfs(graph, start):
+    """
+    Perform Breadth-First Search on a graph
+    
+    Args:
+        graph (dict): Adjacency list representation of the graph
+        start (str/int): Starting node for BFS
+        
+    Returns:
+        list: The order in which nodes were visited
+    """
+    # Create a queue for BFS
+    queue = deque()
+    
+    # Mark the start node as visited and enqueue it
+    visited = set()
+    visited.add(start)
+    queue.append(start)
+    
+    # List to store the traversal order
+    traversal_order = []
+    
+    while queue:
+        # Dequeue a vertex from queue
+        current_node = queue.popleft()
+        traversal_order.append(current_node)
+        
+        # Get all adjacent vertices of the dequeued vertex.
+        # If an adjacent hasn't been visited, mark it visited and enqueue it
+        for neighbor in graph[current_node]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+    
+    return traversal_order
+
+
+# Example usage
+if __name__ == "__main__":
+    # Sample graph represented as adjacency list
+    graph = {
+        'A': ['B', 'C'],
+        'B': ['A', 'D', 'E'],
+        'C': ['A', 'F'],
+        'D': ['B'],
+        'E': ['B', 'F'],
+        'F': ['C', 'E']
+    }
+    
+    print("BFS Traversal:")
+    print(bfs(graph, 'A'))  # Starting from node 'A'
+
+
+Output
+
+A,B,C,D,E,F
+ 
+2.	Write a Program to Implement Depth First Search using Python
+Procedure
+Algorithm Steps
+1.	Start at the initial node and mark it as visited
+2.	Explore an adjacent unvisited node (choose one if multiple exist)
+3.	Repeat the process with the new node
+4.	When you reach a node with no unvisited neighbors, backtrack
+5.	Continue until all reachable nodes are visited
+
+Program
+# Recursive DFS
+def dfs_recursive(graph, node, visited=None):
+    if visited is None:
+        visited = set()
+    visited.add(node)
+    print(node, end=" ")
+    
+    for neighbor in graph[node]:
+        if neighbor not in visited:
+            dfs_recursive(graph, neighbor, visited)
+
+# Iterative DFS
+def dfs_iterative(graph, start):
+    visited = set()
+    stack = [start]
+    
+    while stack:
+        node = stack.pop()
+        if node not in visited:
+            visited.add(node)
+            print(node, end=" ")
+            # Push neighbors in reverse order to visit them left-to-right
+            for neighbor in reversed(graph[node]):
+                if neighbor not in visited:
+                    stack.append(neighbor)
+
+# Example graph
+graph = {
+    'A': ['B', 'C'],
+    'B': ['A', 'D', 'E'],
+    'C': ['A', 'F'],
+    'D': ['B'],
+    'E': ['B', 'F'],
+    'F': ['C', 'E']
+}
+
+print("Recursive DFS:")
+dfs_recursive(graph, 'A')
+
+print("\nIterative DFS:")
+dfs_iterative(graph, 'A') 
+
+Output
+
+A B D E F C
+
+
+A depth-first search (DFS) starting from node 'A' in the given graph would explore the graph by going as deep as possible along each branch before backtracking. A possible traversal order is A, B, D, E, F, C.
+
+Here's a step-by-step explanation: 
+1.	Start at A: The search begins at node A. 
+2.	Explore B: 'B' is a neighbor of A. 
+3.	Explore D: 'D' is a neighbor of B. 
+4.	Backtrack: There are no unvisited neighbors of D, so the search backtracks to B. 
+5.	Explore E: 'E' is a neighbor of B (and not yet visited). 
+6.	Explore F: 'F' is a neighbor of E. 
+7.	Backtrack: There are no unvisited neighbors of F, so the search backtracks to E, then B, then back to A. 
+8.	Explore C: 'C' is a neighbor of A (and not yet visited). 
+9.	Backtrack: There are no unvisited neighbors of C, so the search backtracks to A and terminates as all reachable nodes have been visited.
+ 
+3.	Write a Program to Implement Tic Tac Toe using Python
+Program
+
+import random
+
+def print_board(board):
+    print("\n")
+    print(f" {board[0]} | {board[1]} | {board[2]} ")
+    print("-----------")
+    print(f" {board[3]} | {board[4]} | {board[5]} ")
+    print("-----------")
+    print(f" {board[6]} | {board[7]} | {board[8]} ")
+    print("\n")
+
+def check_winner(board):
+    # Check all possible winning combinations
+    winning_combinations = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],  # rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],  # columns
+        [0, 4, 8], [2, 4, 6]             # diagonals
+    ]
+    
+    for combo in winning_combinations:
+        if board[combo[0]] == board[combo[1]] == board[combo[2]] != " ":
+            return board[combo[0]]  # returns the winning player (X or O)
+    
+    if " " not in board:
+        return "Tie"
+    
+    return None
+
+def player_move(board):
+    while True:
+        try:
+            move = int(input("Enter your move (1-9): ")) - 1
+            if 0 <= move <= 8 and board[move] == " ":
+                return move
+            else:
+                print("Invalid move. Try again.")
+        except ValueError:
+            print("Please enter a number between 1 and 9.")
+
+def computer_move(board):
+    # Simple AI: first checks for winning move, then blocks player, then random
+    empty_spots = [i for i, spot in enumerate(board) if spot == " "]
+    
+    # Check for winning move
+    for spot in empty_spots:
+        board_copy = board.copy()
+        board_copy[spot] = "O"
+        if check_winner(board_copy) == "O":
+            return spot
+    
+    # Block player's winning move
+    for spot in empty_spots:
+        board_copy = board.copy()
+        board_copy[spot] = "X"
+        if check_winner(board_copy) == "X":
+            return spot
+    
+    # Choose center if available
+    if 4 in empty_spots:
+        return 4
+    
+    # Choose a corner if available
+    corners = [0, 2, 6, 8]
+    available_corners = [c for c in corners if c in empty_spots]
+    if available_corners:
+        return random.choice(available_corners)
+    
+    # Choose a random spot
+    return random.choice(empty_spots)
+
+def play_game():
+    board = [" "] * 9
+    current_player = "X"  # Player is X, computer is O
+    
+    print("Welcome to Tic-Tac-Toe!")
+    print("Enter numbers 1-9 to make your move:")
+    print_board(["1", "2", "3", "4", "5", "6", "7", "8", "9"])
+    
+    while True:
+        if current_player == "X":
+            move = player_move(board)
+            board[move] = "X"
+        else:
+            print("Computer's turn...")
+            move = computer_move(board)
+            board[move] = "O"
+            print(f"Computer chooses position {move + 1}")
+        
+        print_board(board)
+        result = check_winner(board)
+        
+        if result:
+            if result == "Tie":
+                print("It's a tie!")
+            elif result == "X":
+                print("Congratulations! You win!")
+            else:
+                print("Computer wins!")
+            break
+        
+        current_player = "O" if current_player == "X" else "X"
+
+if __name__ == "__main__":
+    while True:
+        play_game()
+        play_again = input("Play again? (y/n): ").lower()
+        if play_again != 'y':
+            print("Thanks for playing!")
+            break
+
+
+Algorithm
+
+1.	Initialize the Game
+o	Create a 3x3 board (represented as a list with 9 empty spaces)
+o	Set starting player (typically human as "X" and computer as "O")
+2.	Display the Board
+o	Print the current state of the board with positions 1-9 for reference.
+3.	Game Loop
+o	Repeat until the game ends (win, lose, or tie):
+	Human Player's Turn ("X")
+1.	Ask the player to input a move (1-9).
+2.	Validate the input:
+	Check if the position is within range (1-9).
+	Ensure the selected cell is empty.
+3.	Update the board with "X" at the chosen position.
+	Check for Win/Tie
+	If the human wins → End game, declare winner.
+	If the board is full → Declare a tie.
+	Computer's Turn ("O")
+1.	Determine the best move using AI logic:
+	First, check if the computer can win immediately.
+	If not, block the human's winning move.
+	Prefer the center (position 5) if available.
+	Choose a corner if available.
+	Otherwise, pick a random valid move.
+2.	Update the board with "O" at the chosen position.
+	Check for Win/Tie Again
+	If the computer wins → End game, declare winner.
+	If the board is full → Declare a tie.
+4.	Game Over
+o	Print the final result (win/lose/tie).
+o	Ask if the player wants to play again.
+
+
+
+
+
+
+
+
+
+4.	Program to Implement 8-Puzzle problem using Python. 
+Procedure
+1. Flatten the board into a tuple (immutable, so it can be stored in a dictionary).
+•2. Store this tuple in a dictionary (dict) where the value is the number of moves taken to reach it.
+3. Perform BFS level by level:
+•	Expand all nodes at depth cnt.
+•	Generate all valid next moves by sliding the 0 (blank space).
+•	If the goal state (0,1,2,3,4,5,6,7,8) is found → return the number of moves.
+4. If no solution exists, return -1.
+Program
+class Solution:
+    def solve(self, board):
+        state_dict = {} 
+        flatten = []
+
+        # Flatten the board
+        for i in range(len(board)):
+            flatten += board[i]
+        flatten = tuple(flatten)
+
+        # Store initial state
+        state_dict[flatten] = 0
+
+        # Goal state
+        if flatten == (0, 1, 2, 3, 4, 5, 6, 7, 8):
+            return 0
+
+        return self.get_paths(state_dict)
+
+    def get_paths(self, state_dict):
+        cnt = 0
+        while True:
+            # Nodes at current depth
+            current_nodes = [x for x in state_dict if state_dict[x] == cnt]
+
+            if len(current_nodes) == 0:
+                return -1  # no solution
+
+            for node in current_nodes:
+                next_moves = self.find_next(node)
+                for move in next_moves:
+                    if move not in state_dict:
+                        state_dict[move] = cnt + 1
+                        if move == (0, 1, 2, 3, 4, 5, 6, 7, 8):
+                            return cnt + 1
+            cnt += 1
+
+    def find_next(self, node):
+        # Possible moves for each index of 0
+        moves = {
+            0: [1, 3],
+            1: [0, 2, 4],
+            2: [1, 5],
+            3: [0, 4, 6],
+            4: [1, 3, 5, 7],
+            5: [2, 4, 8],
+            6: [3, 7],
+            7: [4, 6, 8],
+            8: [5, 7],
+        }
+
+        results = []
+        pos_0 = node.index(0)  # position of the blank
+
+        for move in moves[pos_0]:
+            new_node = list(node)
+            # Swap 0 with the chosen move
+            new_node[move], new_node[pos_0] = new_node[pos_0], new_node[move]
+            results.append(tuple(new_node))
+
+        return results
+
+
+# Test
+ob = Solution()
+matrix = [
+    [3, 1, 2],
+    [4, 7, 5],
+    [6, 8, 0]
+]
+print(ob.solve(matrix))  # prints minimum number of moves
+
+
+5. Program to Implement Water-Jug problem using Python. 
+Procedure
+1.  Start from the initial state (0,0) → both jugs empty.
+2. Use a queue (FIFO) to store states and their paths.
+3.  Maintain a visited set to avoid repeating states.
+4.  At each step, generate all possible states by applying the operations:
+•	Fill Jug1
+•	Fill Jug2
+•	Empty Jug1
+•	Empty Jug2
+•	Pour Jug1 → Jug2
+•	Pour Jug2 → Jug1
+5.  If at any state, the amount of water in Jug1 or Jug2 equals the target d, stop and return the path.
+6.  If the queue becomes empty, it means no solution exists.
+
+Program
+from collections import deque
+
+def water_jug_bfs(jug1_capacity, jug2_capacity, target):
+    # Initial state (both jugs empty)
+    start = (0, 0)
+
+    # Queue for BFS
+    q = deque([(start, [])])  # (state, path of states)
+
+    # Visited states to avoid repetition
+    visited = set([start])
+
+    while q:
+        (x, y), path = q.popleft()
+
+        # If we reach target
+        if x == target or y == target:
+            return path + [(x, y)]
+
+        # All possible operations
+        possible_states = [
+            (jug1_capacity, y),  # Fill Jug1
+            (x, jug2_capacity),  # Fill Jug2
+            (0, y),              # Empty Jug1
+            (x, 0),              # Empty Jug2
+            # Pour Jug1 -> Jug2
+            (max(0, x - (jug2_capacity - y)), min(jug2_capacity, y + x)),
+            # Pour Jug2 -> Jug1
+            (min(jug1_capacity, x + y), max(0, y - (jug1_capacity - x))),
+        ]
+
+        for state in possible_states:
+            if state not in visited:
+                visited.add(state)
+                q.append((state, path + [(x, y)]))
+
+    return None  # No solution
+
+
+# Example usage
+if __name__ == "__main__":
+    jug1_capacity = 4
+    jug2_capacity = 3
+    target = 2
+
+    result = water_jug_bfs(jug1_capacity, jug2_capacity, target)
+
+    if result:
+        print("Solution found:")
+        for step in result:
+            print(step)
+    else:
+        print("No solution exists.")
+
